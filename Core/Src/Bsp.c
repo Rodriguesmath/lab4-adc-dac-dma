@@ -183,8 +183,25 @@ static void Bsp_AdcInit(void)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 
-    __HAL_RCC_ADC1_CLK_ENABLE();
+#if defined(STM32H723xx)
+    __HAL_RCC_ADC12_CLK_ENABLE();
+    bsp.hadc1.Instance = ADC1;
+    bsp.hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+    bsp.hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+    bsp.hadc1.Init.ScanConvMode = DISABLE;
+    bsp.hadc1.Init.ContinuousConvMode = DISABLE;
+    bsp.hadc1.Init.DiscontinuousConvMode = DISABLE;
+    bsp.hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    bsp.hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    bsp.hadc1.Init.NbrOfConversion = 1;
+    HAL_ADC_Init(&bsp.hadc1);
 
+    sConfig.Channel = ADC_CHANNEL_0;
+    sConfig.Rank = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_64CYCLES_5;
+    HAL_ADC_ConfigChannel(&bsp.hadc1, &sConfig);
+#else
+    __HAL_RCC_ADC1_CLK_ENABLE();
     bsp.hadc1.Instance = ADC1;
     bsp.hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
     bsp.hadc1.Init.Resolution = ADC_RESOLUTION_12B;
@@ -197,19 +214,27 @@ static void Bsp_AdcInit(void)
     bsp.hadc1.Init.NbrOfConversion = 1;
     HAL_ADC_Init(&bsp.hadc1);
 
-    /* Canal 0 (PA0) */
     sConfig.Channel = ADC_CHANNEL_0;
     sConfig.Rank = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES; // Tempo de amostragem alto para estabilidade
+    sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
     HAL_ADC_ConfigChannel(&bsp.hadc1, &sConfig);
+#endif
 }
 
 static void Bsp_DacInit(void)
 {
-#if defined(STM32H723xx) || defined(STM32F767xx)
+#if defined(STM32H723xx)
     DAC_ChannelConfTypeDef sConfig = {0};
-    __HAL_RCC_DAC1_CLK_ENABLE();
+    __HAL_RCC_DAC12_CLK_ENABLE();
     bsp.hdac.Instance = DAC1;
+    HAL_DAC_Init(&bsp.hdac);
+    sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+    HAL_DAC_ConfigChannel(&bsp.hdac, &sConfig, DAC_CHANNEL_1);
+#elif defined(STM32F767xx)
+    DAC_ChannelConfTypeDef sConfig = {0};
+    __HAL_RCC_DAC_CLK_ENABLE();
+    bsp.hdac.Instance = DAC;
     HAL_DAC_Init(&bsp.hdac);
     sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
@@ -250,8 +275,13 @@ static void Bsp_UartDmaInit(void)
     HAL_UART_Init(&bsp.huart1);
 
     /* DMA USART1_RX */
+#if defined(STM32H723xx)
+    bsp.hdmaUartRx.Instance = DMA1_Stream0;
+    bsp.hdmaUartRx.Init.Request = DMA_REQUEST_USART1_RX;
+#else
     bsp.hdmaUartRx.Instance = DMA2_Stream2;
     bsp.hdmaUartRx.Init.Channel = DMA_CHANNEL_4;
+#endif
     bsp.hdmaUartRx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     bsp.hdmaUartRx.Init.PeriphInc = DMA_PINC_DISABLE;
     bsp.hdmaUartRx.Init.MemInc = DMA_MINC_ENABLE;
