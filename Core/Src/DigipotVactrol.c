@@ -113,6 +113,48 @@ float DigipotVactrol_CalculateRmse(const float *pMeasured, const float *pExpecte
     return sqrtf(sumSquares / (float)count);
 }
 
+bool DigipotVactrol_SetTargetResistanceOhm(float targetOhm)
+{
+    if((targetOhm < dLDR_MIN_LIGHT_RESISTANCE_OHM) || (targetOhm > dLDR_MAX_DARK_RESISTANCE_OHM))
+    {
+        return false;
+    }
+
+    // Busca de convergencia em malha fechada (Closed-Loop Calibration)
+    // Se a resistencia medida for maior que a desejada, aumenta a luz (aumenta word)
+    u8 word = digipotVactrol.currentWord;
+
+    for(u8 iter = 0; iter < 16; iter++)
+    {
+        DigipotVactrol_SetWord(word);
+        Bsp_DelayMs(20);
+        float currentR = DigipotVactrol_MeasureResistanceOhm();
+
+        float errorRatio = fabsf(currentR - targetOhm) / targetOhm;
+        if(errorRatio < 0.05f) // Convergiu com erro inferior a 5%
+        {
+            return true;
+        }
+
+        if(currentR > targetOhm)
+        {
+            if(word < 255)
+            {
+                word++;
+            }
+        }
+        else
+        {
+            if(word > 0)
+            {
+                word--;
+            }
+        }
+    }
+
+    return true;
+}
+
 /*******************************************************************************
  * FUNCOES LOCAIS
  ******************************************************************************/

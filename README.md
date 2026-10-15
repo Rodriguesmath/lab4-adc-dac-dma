@@ -20,6 +20,12 @@ O firmware utiliza conversão Digital-Analógica (DAC ou PWM filtrado de 12 bits
 - **Atualização Dinâmica de Calibração:** Recepção contínua via **UART com DMA circular**, permitindo reprogramar a curva de calibração em tempo de execução sem travar a CPU.
 - **Validação Automatizada:** Sequência de teste em 10 pontos de controle com cálculo do erro quadrático médio (RMSE).
 
+### Requisito Avançado Atendido: Aplicação Exemplo (AGC e Resistor Calibrado em Malha Fechada)
+Conforme solicitado nos requisitos avançados do roteiro, foi implementada a função `DigipotVactrol_SetTargetResistanceOhm(float targetOhm)`:
+- **Funcionamento:** O usuário especifica diretamente a resistência analógica desejada em Ohms (ex: $10.000\,\Omega$, $5.000\,\Omega$, $2.200\,\Omega$).
+- **Algoritmo de Malha Fechada (*Closed-Loop Convergence*):** O firmware lê o divisor via ADC com média móvel e ajusta iterativamente a palavra do Vactrol até que a resistência atinja o valor nominal com erro inferior a $5\%$.
+- **Aplicações Industriais:** Controle Automático de Ganho (AGC) em pré-amplificadores de áudio/sensores, fontes programáveis de corrente e sintonia automática de frequência em filtros ativos analógicos.
+
 ---
 
 ## 2. Pinagem de Conexão

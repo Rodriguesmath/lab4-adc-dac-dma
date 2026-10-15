@@ -28,6 +28,7 @@ void  DigipotVactrol_SetWord(u8 resWord);
 float DigipotVactrol_MeasureResistanceOhm(void);
 void  DigipotVactrol_UpdateLutFromDma(const u16 *pNewLut, u16 length);
 float DigipotVactrol_CalculateRmse(const float *pMeasured, const float *pExpected, u8 count);
+bool  DigipotVactrol_SetTargetResistanceOhm(float targetOhm);
 
 #endif /* _DIGIPOT_VACTROL_H_ */
 /** @} DOXYGEN GROUP TAG END OF FILE */

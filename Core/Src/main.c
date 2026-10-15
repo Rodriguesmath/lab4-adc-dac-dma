@@ -53,6 +53,7 @@ static struct
  ******************************************************************************/
 static void Main_RunCalibrationTest(void);
 static void Main_PrintResults(float rmse);
+static void Main_RunApplicationExample(void);
 
 /*******************************************************************************
  * FUNCOES PUBLICAS
@@ -76,6 +77,7 @@ int main(void)
 
     // Executa primeira rodada de testes
     Main_RunCalibrationTest();
+    Main_RunApplicationExample();
 
     while(1)
     {
@@ -87,6 +89,7 @@ int main(void)
             mainApp.lastTestTick = currentTick;
             Bsp_LedToggle();
             Main_RunCalibrationTest();
+            Main_RunApplicationExample();
         }
 
         Bsp_DelayMs(10);
@@ -141,6 +144,29 @@ static void Main_PrintResults(float rmse)
              "\r\n>>> Erro Medio Quadratico (RMSE): %.2f Ohm <<<\r\n", rmse);
     Bsp_UartTransmit(msgBuffer);
     Bsp_UartTransmit("--------------------------------------------------\r\n");
+}
+
+static void Main_RunApplicationExample(void)
+{
+    char msg[128];
+    const float targetResistances[] = {10000.0f, 5000.0f, 2200.0f};
+
+    Bsp_UartTransmit("\r\n>>> APLICACAO EXEMPLO (REQUISITO AVANCADO): Resistor Calibrado / Controle de Ganho <<<\r\n");
+
+    for(u8 i = 0; i < 3; i++)
+    {
+        float target = targetResistances[i];
+        DigipotVactrol_SetTargetResistanceOhm(target);
+        float actual = DigipotVactrol_MeasureResistanceOhm();
+
+        snprintf(msg, sizeof(msg),
+                 "[AGC/Calibrado] Alvo: %7.1f Ohm | Ajustado: %7.1f Ohm | Erro: %+.2f%%\r\n",
+                 target,
+                 actual,
+                 ((actual - target) / target) * 100.0f);
+        Bsp_UartTransmit(msg);
+    }
+    Bsp_UartTransmit("==================================================\r\n");
 }
 
 /** @} DOXYGEN GROUP TAG END OF FILE */
