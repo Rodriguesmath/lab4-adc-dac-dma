@@ -32,6 +32,11 @@ O firmware utiliza conversão Digital-Analógica (DAC ou PWM filtrado de 12 bits
 | **UART RX (DMA)** | `PA10` | `PA10` / `PD9` | Carga de nova LUT via DMA |
 | **LED Heartbeat** | `PC13` | `PC13` / `PB0` (Green) | Indicador visual de execução |
 
+### Diagrama Esquemático do Circuito
+![Esquemático do Digipot Vactrol](Docs/esquematico_circuito.png)
+
+> O arquivo vetorial completo está disponível em: [Esquematico_Placa1_Digipot_Vactrol.pdf](Docs/Esquematico_Placa1_Digipot_Vactrol.pdf)
+
 ---
 
 ## 3. Circuito Divisor de Tensão e Equações
